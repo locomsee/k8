@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-minipay-engine
+  namespace: minipay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-minipay-engine
+  template:
+    metadata:
+      labels:
+        app: ms-minipay-engine
+    spec:
+      containers:
+        - name: ms-minipay-engine
+          image: ms-minipay-engine:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://host.docker.internal:5432/minipay"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-minipay-engine
+  namespace: minipay
+spec:
+  selector:
+    app: ms-minipay-engine
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
